@@ -3,6 +3,7 @@ python-dotenv
 google-genai
 flask-login
 flask-sqlalchemy
+flask-limiter
 email-validator
 stripe
 qrcode

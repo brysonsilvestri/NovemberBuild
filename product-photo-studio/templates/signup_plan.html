@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - {{ plan_name }} Plan - StudioSix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --text: #2d3748;
+      --muted: #718096;
+      --primary: #0a7cff;
+      --primary-hover: #0968d9;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+    }
+
+    /* Left Side - Plan Details */
+    .plan-details {
+      background: var(--bg);
+      padding: 40px 32px;
+      border-right: 1px solid var(--border);
+    }
+
+    .plan-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .plan-name {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .plan-trial {
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .plan-price {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .plan-period {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .plan-features li {
+      padding: 10px 0;
+      font-size: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* Right Side - Form */
+    .form-section {
+      padding: 40px;
+    }
+
+    .form-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10, 124, 255, 0.1);
+    }
+
+    .error {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Loading State */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .loading-text {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .plan-details {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 32px 24px;
+      }
+      .form-section {
+        padding: 32px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left Side - Plan Details -->
+    <div class="plan-details">
+      <div class="plan-badge">SELECTED PLAN</div>
+      <h2 class="plan-name">{{ plan_name }}</h2>
+      <div class="plan-trial">7-day free trial</div>
+      <div class="plan-price">${{ price }}</div>
+      <div class="plan-period">per month</div>
+      <ul class="plan-features">
+        {% for feature in features %}
+        <li>{{ feature }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Right Side - Form -->
+    <div class="form-section">
+      <div id="form-content">
+        <h1 class="form-title">Create your account</h1>
+        <p class="form-subtitle">Start your {{ plan_name }} plan today</p>
+
+        <div class="form-group">
+          <label class="form-label" for="name">Name</label>
+          <input type="text" id="name" class="form-input" placeholder="Your name" autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="At least 8 characters" autocomplete="new-password">
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <button class="btn-primary" onclick="startTrial()">Start 7-day free trial</button>
+
+        <div class="footer-link">
+          Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="loading-text">Please wait</div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const plan = '{{ plan }}';
+    const billing = '{{ billing }}';
+
+    async function startTrial() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const error = document.getElementById('error');
+
+      // Validation
+      if (!name) {
+        error.textContent = 'Please enter your name';
+        error.classList.add('show');
+        return;
+      }
+
+      if (!email || !email.includes('@')) {
+        error.textContent = 'Please enter a valid email address';
+        error.classList.add('show');
+        return;
+      }
+
+      if (password.length < 8) {
+        error.textContent = 'Password must be at least 8 characters';
+        error.classList.add('show');
+        return;
+      }
+
+      // Show loading
+      document.getElementById('form-content').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            plan,
+            billing
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else if (data.redirect) {
+            window.location.href = data.redirect;
+          }
+        } else {
+          document.getElementById('form-content').style.display = 'block';
+          document.getElementById('loading').classList.remove('show');
+          error.textContent = data.error || 'Something went wrong';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        document.getElementById('form-content').style.display = 'block';
+        document.getElementById('loading').classList.remove('show');
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+      }
+    }
+
+    // Enter key support
+    ['name', 'email', 'password'].forEach(id => {
+      document.getElementById(id).addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') startTrial();
+      });
+    });
+  </script>
+</body>
+</html>

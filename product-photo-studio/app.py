@@ -9,6 +9,8 @@ from flask_login import (
     current_user, login_required
 )
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image, ImageOps
@@ -64,6 +66,14 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to continue.'
 login_manager.login_message_category = 'info'
+
+# --- Rate Limiting ---
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 # --- Credit allocation by tier ---
 CREDITS_PER_IMAGE = 500
@@ -129,6 +139,14 @@ class MobileUploadToken(db.Model):
     used = db.Column(db.Boolean, default=False, nullable=False)
     image_path = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+# --- IP-based guest tracking model ---
+class GuestUsage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(45), nullable=False, index=True)  # IPv4 or IPv6
+    generation_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -206,6 +224,7 @@ def pricing():
 # Auth Routes
 # -----------------------
 @app.route("/api/signup", methods=["POST"])
+@limiter.limit("5 per hour")
 def api_signup():
     """AJAX endpoint for creating accounts during signup flow"""
     data = request.get_json()
@@ -331,7 +350,65 @@ def signup():
     next_page = request.args.get('next') or request.form.get('next') or url_for('index')
     return redirect(next_page)
 
+@app.route("/signup-flow")
+@limiter.limit("10 per hour")
+def signup_flow():
+    """3-step signup flow page"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template("signup_flow.html")
+
+@app.route("/signup-plan")
+@limiter.limit("10 per hour")
+def signup_plan():
+    """Tier-specific signup page"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    plan = request.args.get('plan', 'starter').lower()
+    billing = request.args.get('billing', 'monthly').lower()
+
+    # Plan details for template
+    plan_data = {
+        'starter': {
+            'name': 'Starter',
+            'price': '5' if billing == 'annual' else '6',
+            'features': ['120 photos per month', 'High quality exports', 'Priority processing']
+        },
+        'creator': {
+            'name': 'Creator',
+            'price': '18.33' if billing == 'annual' else '11',
+            'features': ['400 photos per month', 'High quality exports', 'Priority processing']
+        },
+        'enterprise': {
+            'name': 'Enterprise',
+            'price': '82.50' if billing == 'annual' else '99',
+            'features': ['1,600 photos per month', 'High quality exports', 'Dedicated support']
+        }
+    }
+
+    plan_info = plan_data.get(plan, plan_data['starter'])
+
+    return render_template("signup_plan.html",
+                         plan=plan,
+                         billing=billing,
+                         plan_name=plan_info['name'],
+                         price=plan_info['price'],
+                         features=plan_info['features'])
+
+@app.post("/api/check-email")
+@limiter.limit("20 per minute")
+def check_email():
+    """Check if email already exists"""
+    email = (request.json.get('email') or '').strip().lower()
+    if not email:
+        return jsonify(exists=False)
+
+    existing = User.query.filter_by(email=email).first()
+    return jsonify(exists=bool(existing))
+
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def login():
     if current_user.is_authenticated:
         return redirect(request.args.get('next') or url_for('index'))
@@ -637,17 +714,28 @@ def view_generation(generation_id):
 # Transform Action
 # -----------------------
 @app.post("/transform")
+@limiter.limit("5 per minute")
 def transform():
-    if not current_user.is_authenticated:
-        return redirect(url_for('signup', next=url_for('index')))
+    # Handle both authenticated and guest users
+    if current_user.is_authenticated:
+        # Check credits for authenticated users
+        if current_user.credits_remaining < CREDITS_PER_IMAGE:
+            if current_user.is_subscribed:
+                flash("You've used all your monthly credits. They'll reset at the start of next month.", "info")
+            else:
+                flash("You've used all your free credits. Upgrade to continue.", "info")
+            return redirect(url_for('upgrade'))
+    else:
+        # Guest user - check IP-based limit (2 free photos)
+        ip_address = get_remote_address()
+        guest = GuestUsage.query.filter_by(ip_address=ip_address).first()
 
-    # Check credits
-    if current_user.credits_remaining < CREDITS_PER_IMAGE:
-        if current_user.is_subscribed:
-            flash("You've used all your monthly credits. They'll reset at the start of next month.", "info")
-        else:
-            flash("You've used all your free credits. Upgrade to continue.", "info")
-        return redirect(url_for('upgrade'))
+        if guest and guest.generation_count >= 2:
+            flash("You've used your 2 free photos. Create an account to continue!", "info")
+            return redirect(url_for('signup_flow'))
+        elif not guest:
+            guest = GuestUsage(ip_address=ip_address, generation_count=0)
+            db.session.add(guest)
 
     input_image = None
     output_image = None
@@ -701,16 +789,23 @@ def transform():
             generated_image.save(output_path, format="PNG")
             output_image = "/" + output_path.replace("\\", "/")
 
-        generation = Generation(
-            user_id=current_user.id,
-            input_image_path=input_image,
-            output_image_path=output_image,
-        )
-        db.session.add(generation)
-        
-        # Deduct credits
-        current_user.credits_remaining = max(0, current_user.credits_remaining - CREDITS_PER_IMAGE)
-        current_user.generation_count = (current_user.generation_count or 0) + 1
+        # Save generation for authenticated users
+        if current_user.is_authenticated:
+            generation = Generation(
+                user_id=current_user.id,
+                input_image_path=input_image,
+                output_image_path=output_image,
+            )
+            db.session.add(generation)
+
+            # Deduct credits
+            current_user.credits_remaining = max(0, current_user.credits_remaining - CREDITS_PER_IMAGE)
+            current_user.generation_count = (current_user.generation_count or 0) + 1
+        else:
+            # Track guest usage
+            guest.generation_count += 1
+            guest.last_used_at = datetime.utcnow()
+
         db.session.commit()
 
     except Exception as e:
