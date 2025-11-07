@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - StudioSix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --text: #2d3748;
+      --muted: #718096;
+      --primary: #0a7cff;
+      --primary-hover: #0968d9;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Progress Bar - Fixed at top */
+    .progress-bar {
+      display: flex;
+      gap: 8px;
+      padding: 32px 40px 24px;
+      background: white;
+    }
+
+    .progress-segment {
+      flex: 1;
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+
+    .progress-segment.active {
+      background: var(--primary);
+    }
+
+    /* Content Area */
+    .content {
+      padding: 0 40px 40px;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .step-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .step-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10, 124, 255, 0.1);
+    }
+
+    .error {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    /* Plan Cards - Simplified */
+    .plan-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .plan-card {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .plan-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .plan-card.selected {
+      border-color: var(--primary);
+      background: rgba(10, 124, 255, 0.04);
+    }
+
+    .plan-card input {
+      display: none;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .plan-price {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .plan-period {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .plan-photos {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn-container {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 14px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back {
+      width: 48px;
+      height: 48px;
+      background: #f7fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 18px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .btn-back:hover {
+      background: #edf2f7;
+      border-color: var(--muted);
+    }
+
+    /* Loading Dots */
+    .loading-container {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .loading-text {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Footer Link */
+    .footer-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .progress-bar { padding: 24px 24px 16px; }
+      .content { padding: 0 24px 32px; }
+      .step-title { font-size: 20px; }
+      .plan-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-segment active" id="seg-1"></div>
+      <div class="progress-segment" id="seg-2"></div>
+      <div class="progress-segment" id="seg-3"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Step 1: Email & Password -->
+      <div class="step active" id="step-1">
+        <h1 class="step-title">Create your account</h1>
+        <p class="step-subtitle">Enter your email and password to get started</p>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="At least 8 characters" autocomplete="new-password">
+        </div>
+
+        <div class="error" id="error-1"></div>
+
+        <button class="btn-primary" onclick="goToStep2()">Continue</button>
+
+        <div class="footer-link">
+          Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+        </div>
+      </div>
+
+      <!-- Step 2: Plan Selection -->
+      <div class="step" id="step-2">
+        <h1 class="step-title">Choose your plan</h1>
+        <p class="step-subtitle">Start your 7-day free trial</p>
+
+        <div class="plan-cards">
+          <div class="plan-card" onclick="selectPlan('starter')">
+            <input type="radio" name="plan" value="starter" id="plan-starter">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price">$6</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-photos">120 photos</div>
+          </div>
+
+          <div class="plan-card" onclick="selectPlan('creator')">
+            <input type="radio" name="plan" value="creator" id="plan-creator">
+            <div class="plan-name">Creator</div>
+            <div class="plan-price">$11</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-photos">400 photos</div>
+          </div>
+        </div>
+
+        <div class="error" id="error-2"></div>
+
+        <div class="btn-container">
+          <button class="btn-back" onclick="goToStep1()">←</button>
+          <button class="btn-primary" onclick="startTrial()">Start 7-day free trial</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Loading -->
+      <div class="step" id="step-3">
+        <div class="loading-container">
+          <div class="loading-text">Please wait</div>
+          <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let userEmail = '';
+    let userPassword = '';
+    let selectedPlan = '';
+
+    function showStep(step) {
+      // Hide all steps
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`step-${i}`).classList.remove('active');
+        document.getElementById(`seg-${i}`).classList.remove('active');
+      }
+
+      // Show current step
+      document.getElementById(`step-${step}`).classList.add('active');
+
+      // Activate progress segments
+      for (let i = 1; i <= step; i++) {
+        document.getElementById(`seg-${i}`).classList.add('active');
+      }
+
+      currentStep = step;
+    }
+
+    function goToStep1() {
+      showStep(1);
+    }
+
+    async function goToStep2() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const error = document.getElementById('error-1');
+
+      // Validation
+      if (!email || !email.includes('@')) {
+        error.textContent = 'Please enter a valid email address';
+        error.classList.add('show');
+        return;
+      }
+
+      if (password.length < 8) {
+        error.textContent = 'Password must be at least 8 characters';
+        error.classList.add('show');
+        return;
+      }
+
+      // Check if email exists
+      try {
+        const response = await fetch('/api/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (data.exists) {
+          error.textContent = 'This email is already registered. Please log in.';
+          error.classList.add('show');
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking email:', err);
+      }
+
+      // Store and proceed
+      userEmail = email;
+      userPassword = password;
+      error.classList.remove('show');
+      showStep(2);
+    }
+
+    function selectPlan(plan) {
+      selectedPlan = plan;
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector(`#plan-${plan}`).closest('.plan-card').classList.add('selected');
+      document.querySelector(`#plan-${plan}`).checked = true;
+      document.getElementById('error-2').classList.remove('show');
+    }
+
+    async function startTrial() {
+      if (!selectedPlan) {
+        const error = document.getElementById('error-2');
+        error.textContent = 'Please select a plan';
+        error.classList.add('show');
+        return;
+      }
+
+      showStep(3);
+
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userEmail,
+            password: userPassword,
+            plan: selectedPlan,
+            billing: 'monthly'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else if (data.redirect) {
+            window.location.href = data.redirect;
+          }
+        } else {
+          showStep(2);
+          const error = document.getElementById('error-2');
+          error.textContent = data.error || 'Something went wrong';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        showStep(2);
+        const error = document.getElementById('error-2');
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+      }
+    }
+
+    // Enter key support
+    document.getElementById('email').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') goToStep2();
+    });
+    document.getElementById('password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') goToStep2();
+    });
+  </script>
+</body>
+</html>

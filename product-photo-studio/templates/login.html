@@ -1,130 +1,208 @@
-{% set is_modal = request.args.get('modal') %}
-{% if not is_modal %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login - AI Product Photo Studio</title>
+  <title>Log In - StudioSix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    :root { --bg-light: #f7f7fb; --text-light: #000; --chatgpt-blue: #0a7cff; }
+    :root {
+      --bg: #f7f7fb;
+      --text: #2d3748;
+      --muted: #718096;
+      --primary: #0a7cff;
+      --primary-hover: #0968d9;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: var(--bg-light);
-      font-family: 'Inter', sans-serif;
-      color: var(--text-light);
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
     }
-    .auth-card {
-      border: none;
-      border-radius: 1rem;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-      animation: fadeUp 0.6s ease-out;
-      max-width: 400px;
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      max-width: 420px;
       width: 100%;
-      margin: 0 auto;
+      padding: 40px;
     }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: translateY(0);} }
-    .btn-primary { background-color: var(--chatgpt-blue); border: none; }
-    .btn-primary:hover { background-color: #0968d9; }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .alert-danger {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #16a34a;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10, 124, 255, 0.1);
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .form-check input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .form-check label {
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .container { padding: 32px 24px; }
+      .title { font-size: 20px; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card auth-card p-4">
-      <h2 class="text-center mb-4">Welcome Back</h2>
+    <h1 class="title">Welcome back</h1>
+    <p class="subtitle">Log in to your account</p>
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
       {% endif %}
+    {% endwith %}
 
-      <form method="POST" action="{{ url_for('login', next=request.args.get('next', url_for('index'))) }}">
-        <input type="hidden" name="next" value="{{ request.args.get('next', url_for('index')) }}">
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" name="email" required autofocus>
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
 
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember">
-          <label class="form-check-label" for="remember">Remember me</label>
-        </div>
+    <form method="POST" action="{{ url_for('login', next=request.args.get('next', url_for('index'))) }}">
+      <input type="hidden" name="next" value="{{ request.args.get('next', url_for('index')) }}">
 
-        <button type="submit" class="btn btn-primary w-100 mb-3">Log In</button>
-      </form>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required autofocus autocomplete="email">
+      </div>
 
-      <p class="text-center mb-0">
-        Don't have an account?
-        <a href="{{ url_for('signup', next=request.args.get('next', url_for('index'))) }}">Sign up</a>
-      </p>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" id="remember" name="remember" value="1">
+        <label for="remember">Remember me</label>
+      </div>
+
+      <button type="submit" class="btn-primary">Log in</button>
+    </form>
+
+    <div class="footer-link">
+      Don't have an account? <a href="{{ url_for('signup', next=request.args.get('next', url_for('index'))) }}">Sign up</a>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-{% else %}
-{# ---------- MODAL/FRAGMENT VERSION (no <html>/<head>) ---------- #}
-<div class="form-errors"></div>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-{% if error %}
-  <div class="alert alert-danger">{{ error }}</div>
-{% endif %}
-
-<form method="POST" action="{{ url_for('login', modal=1, next=request.args.get('next', url_for('index'))) }}">
-  <input type="hidden" name="next" value="{{ request.args.get('next', url_for('index')) }}">
-  <div class="mb-3">
-    <label for="email_modal" class="form-label">Email</label>
-    <input type="email" class="form-control" id="email_modal" name="email" required autofocus>
-  </div>
-  <div class="mb-3">
-    <label for="password_modal" class="form-label">Password</label>
-    <input type="password" class="form-control" id="password_modal" name="password" required>
-  </div>
-
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" value="1" id="remember_modal" name="remember">
-    <label class="form-check-label" for="remember_modal">Remember me</label>
-  </div>
-
-  <button type="submit" class="btn btn-primary w-100 mb-2">Log In</button>
-</form>
-
-<p class="text-center mb-0">
-  Don’t have an account?
-  <a href="{{ url_for('signup', modal=1, next=request.args.get('next', url_for('index'))) }}"
-     data-bs-toggle="tab" data-bs-target="#signup-pane"
-     onclick="event.preventDefault(); document.querySelector('#signup-tab')?.click();">
-    Sign up
-  </a>
-</p>
-{% endif %}

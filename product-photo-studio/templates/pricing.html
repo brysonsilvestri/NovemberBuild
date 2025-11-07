@@ -847,7 +847,7 @@
       <a href="{{ url_for('pricing') }}" class="active">Pricing</a>
       <div class="auth-buttons">
         <a href="{{ url_for('login') }}" class="btn-login">Log in</a>
-        <button onclick="openSignupModal()" class="btn-signup">Sign up</button>
+        <a href="{{ url_for('signup_flow') }}" class="btn-signup">Sign up</a>
       </div>
     </nav>
     <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰</button>
@@ -887,7 +887,7 @@
             </div>
             <div class="price-annual-note" id="free-note"></div>
           </div>
-          <a href="{{ url_for('signup', plan='free') }}" class="plan-cta" id="free-cta">Get Started</a>
+          <a href="{{ url_for('signup_flow') }}" class="plan-cta" id="free-cta">Get Started</a>
           <ul class="plan-features">
             <li><i class="bi bi-check-circle-fill"></i> 15 images per month</li>
             <li><i class="bi bi-check-circle-fill"></i> White background removal</li>
@@ -911,7 +911,7 @@
             </div>
             <div class="price-annual-note" id="starter-note">Billed annually at $60</div>
           </div>
-          <a href="{{ url_for('signup', plan='starter', billing='monthly') }}" class="plan-cta" id="starter-cta">Get Started</a>
+          <a href="{{ url_for('signup_plan', plan='starter', billing='monthly') }}" class="plan-cta" id="starter-cta">Get Started</a>
           <ul class="plan-features">
             <li><i class="bi bi-check-circle-fill"></i> 120 images per month</li>
             <li><i class="bi bi-check-circle-fill"></i> White background removal</li>
@@ -937,7 +937,7 @@
             </div>
             <div class="price-annual-note" id="creator-note">Billed annually at $220</div>
           </div>
-          <a href="{{ url_for('signup', plan='creator', billing='monthly') }}" class="plan-cta primary" id="creator-cta">Get Started</a>
+          <a href="{{ url_for('signup_plan', plan='creator', billing='monthly') }}" class="plan-cta primary" id="creator-cta">Get Started</a>
           <ul class="plan-features">
             <li><i class="bi bi-check-circle-fill"></i> 400 images per month</li>
             <li><i class="bi bi-check-circle-fill"></i> White background removal</li>
@@ -962,7 +962,7 @@
             </div>
             <div class="price-annual-note" id="enterprise-note">Billed annually at $990</div>
           </div>
-          <a href="{{ url_for('signup', plan='enterprise', billing='monthly') }}" class="plan-cta" id="enterprise-cta">Get Started</a>
+          <a href="{{ url_for('signup_plan', plan='enterprise', billing='monthly') }}" class="plan-cta" id="enterprise-cta">Get Started</a>
           <ul class="plan-features">
             <li><i class="bi bi-check-circle-fill"></i> 1,600 images per month</li>
             <li><i class="bi bi-check-circle-fill"></i> White background removal</li>
@@ -1134,11 +1134,11 @@
     // Update CTA links when billing toggle changes
     function updateCTALinks() {
       const billing = isAnnual ? 'annual' : 'monthly';
-      
-      document.getElementById('free-cta').href = `/signup?plan=free`;
-      document.getElementById('starter-cta').href = `/signup?plan=starter&billing=${billing}`;
-      document.getElementById('creator-cta').href = `/signup?plan=creator&billing=${billing}`;
-      document.getElementById('enterprise-cta').href = `/signup?plan=enterprise&billing=${billing}`;
+
+      document.getElementById('free-cta').href = `/signup-flow`;
+      document.getElementById('starter-cta').href = `/signup-plan?plan=starter&billing=${billing}`;
+      document.getElementById('creator-cta').href = `/signup-plan?plan=creator&billing=${billing}`;
+      document.getElementById('enterprise-cta').href = `/signup-plan?plan=enterprise&billing=${billing}`;
     }
 
     function toggleBilling() {
