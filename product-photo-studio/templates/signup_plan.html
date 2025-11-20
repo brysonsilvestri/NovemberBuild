@@ -41,74 +41,67 @@
 
     /* Left Side - Plan Details */
     .plan-details {
-      background: var(--bg);
-      padding: 40px 32px;
-      border-right: 1px solid var(--border);
+      background: var(--primary);
+      padding: 48px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    .plan-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      margin-bottom: 16px;
+    .plan-header {
+      flex: 1;
     }
 
     .plan-name {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-
-    .plan-trial {
-      font-size: 14px;
-      color: var(--primary);
-      font-weight: 600;
+      color: white;
       margin-bottom: 16px;
-    }
-
-    .plan-price {
-      font-size: 40px;
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 4px;
-      line-height: 1;
-    }
-
-    .plan-period {
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 500;
-      margin-bottom: 24px;
+      line-height: 1.2;
     }
 
     .plan-features {
       list-style: none;
       padding: 0;
-      margin: 0;
+      margin: 24px 0 0 0;
     }
 
     .plan-features li {
-      padding: 10px 0;
+      padding: 8px 0;
       font-size: 15px;
-      color: var(--text);
+      color: rgba(255, 255, 255, 0.95);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      line-height: 1.5;
     }
 
     .plan-features li::before {
       content: '✓';
-      color: var(--primary);
+      color: white;
       font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .plan-pricing {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .plan-price {
+      font-size: 48px;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .plan-period {
       font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
     }
 
     /* Right Side - Form */
@@ -256,9 +249,13 @@
         grid-template-columns: 1fr;
       }
       .plan-details {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
         padding: 32px 24px;
+      }
+      .plan-name {
+        font-size: 28px;
+      }
+      .plan-price {
+        font-size: 40px;
       }
       .form-section {
         padding: 32px 24px;
@@ -270,16 +267,18 @@
   <div class="container">
     <!-- Left Side - Plan Details -->
     <div class="plan-details">
-      <div class="plan-badge">SELECTED PLAN</div>
-      <h2 class="plan-name">{{ plan_name }}</h2>
-      <div class="plan-trial">7-day free trial</div>
-      <div class="plan-price">${{ price }}</div>
-      <div class="plan-period">per month</div>
-      <ul class="plan-features">
-        {% for feature in features %}
-        <li>{{ feature }}</li>
-        {% endfor %}
-      </ul>
+      <div class="plan-header">
+        <h2 class="plan-name">{{ plan_name }}</h2>
+        <ul class="plan-features">
+          {% for feature in features %}
+          <li>{{ feature }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="plan-pricing">
+        <div class="plan-price">${{ price }}</div>
+        <div class="plan-period">per month</div>
+      </div>
     </div>
 
     <!-- Right Side - Form -->
@@ -287,11 +286,6 @@
       <div id="form-content">
         <h1 class="form-title">Create your account</h1>
         <p class="form-subtitle">Start your {{ plan_name }} plan today</p>
-
-        <div class="form-group">
-          <label class="form-label" for="name">Name</label>
-          <input type="text" id="name" class="form-input" placeholder="Your name" autocomplete="name">
-        </div>
 
         <div class="form-group">
           <label class="form-label" for="email">Email</label>
@@ -328,18 +322,11 @@
     const billing = '{{ billing }}';
 
     async function startTrial() {
-      const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const error = document.getElementById('error');
 
       // Validation
-      if (!name) {
-        error.textContent = 'Please enter your name';
-        error.classList.add('show');
-        return;
-      }
-
       if (!email || !email.includes('@')) {
         error.textContent = 'Please enter a valid email address';
         error.classList.add('show');
@@ -361,7 +348,6 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name,
             email,
             password,
             plan,
@@ -392,7 +378,7 @@
     }
 
     // Enter key support
-    ['name', 'email', 'password'].forEach(id => {
+    ['email', 'password'].forEach(id => {
       document.getElementById(id).addEventListener('keypress', (e) => {
         if (e.key === 'Enter') startTrial();
       });
