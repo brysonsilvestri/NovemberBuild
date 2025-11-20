@@ -372,18 +372,21 @@ def signup_plan():
     plan_data = {
         'starter': {
             'name': 'Starter',
+            'description': 'For growing businesses',
             'price': '5' if billing == 'annual' else '6',
-            'features': ['120 photos per month', 'High quality exports', 'Priority processing']
+            'features': ['120 images per month', 'White background removal', 'High quality exports', 'Priority processing']
         },
         'creator': {
             'name': 'Creator',
+            'description': 'For content creators',
             'price': '18.33' if billing == 'annual' else '11',
-            'features': ['400 photos per month', 'High quality exports', 'Priority processing']
+            'features': ['400 images per month', 'White background removal', 'High quality exports', 'Priority processing']
         },
         'enterprise': {
             'name': 'Enterprise',
+            'description': 'For high-volume teams',
             'price': '82.50' if billing == 'annual' else '99',
-            'features': ['1,600 photos per month', 'High quality exports', 'Dedicated support']
+            'features': ['1,600 images per month', 'White background removal', 'High quality exports', 'Priority processing']
         }
     }
 
@@ -393,6 +396,7 @@ def signup_plan():
                          plan=plan,
                          billing=billing,
                          plan_name=plan_info['name'],
+                         plan_description=plan_info['description'],
                          price=plan_info['price'],
                          features=plan_info['features'])
 
