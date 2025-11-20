@@ -5,6 +5,7 @@
   <title>Sign Up - {{ plan_name }} Plan - StudioSix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <style>
     :root {
       --bg: #f7f7fb;
@@ -29,97 +30,106 @@
     }
 
     .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      background: transparent;
       max-width: 900px;
       width: 100%;
       display: grid;
-      grid-template-columns: 320px 1fr;
-      overflow: hidden;
+      grid-template-columns: 340px 1fr;
+      gap: 2rem;
+      align-items: start;
     }
 
-    /* Left Side - Plan Details */
+    /* Left Side - Plan Details Card */
     .plan-details {
-      background: var(--primary);
-      padding: 48px 32px;
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2.5rem 2rem;
+      border: 2px solid var(--primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .plan-header {
-      flex: 1;
+      position: sticky;
+      top: 2rem;
     }
 
     .plan-name {
-      font-size: 32px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 16px;
-      line-height: 1.2;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-description {
+      color: var(--muted);
+      font-size: 0.9375rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-price {
+      margin-bottom: 1.5rem;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-amount {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .price-period {
+      color: var(--muted);
+      font-size: 0.9375rem;
     }
 
     .plan-features {
       list-style: none;
       padding: 0;
-      margin: 24px 0 0 0;
+      margin: 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
     }
 
     .plan-features li {
-      padding: 8px 0;
-      font-size: 15px;
-      color: rgba(255, 255, 255, 0.95);
+      padding: 0.75rem 0;
+      font-size: 0.9375rem;
+      color: var(--text);
       display: flex;
       align-items: center;
-      gap: 10px;
-      line-height: 1.5;
+      gap: 0.75rem;
     }
 
-    .plan-features li::before {
-      content: '✓';
-      color: white;
-      font-weight: 700;
-      font-size: 18px;
+    .plan-features li i {
+      color: var(--primary);
+      font-size: 1.125rem;
       flex-shrink: 0;
-    }
-
-    .plan-pricing {
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .plan-price {
-      font-size: 48px;
-      font-weight: 900;
-      color: white;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .plan-period {
-      font-size: 16px;
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: 500;
     }
 
     /* Right Side - Form */
     .form-section {
-      padding: 40px;
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .form-title {
-      font-size: 24px;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
     }
 
     .form-subtitle {
-      font-size: 15px;
+      font-size: 0.9375rem;
       color: var(--muted);
-      margin-bottom: 32px;
+      margin-bottom: 2rem;
     }
 
     .form-group {
@@ -247,18 +257,14 @@
       body { padding: 1rem; }
       .container {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
       }
       .plan-details {
-        padding: 32px 24px;
-      }
-      .plan-name {
-        font-size: 28px;
-      }
-      .plan-price {
-        font-size: 40px;
+        position: static;
+        padding: 2rem 1.5rem;
       }
       .form-section {
-        padding: 32px 24px;
+        padding: 2rem 1.5rem;
       }
     }
   </style>
@@ -267,18 +273,19 @@
   <div class="container">
     <!-- Left Side - Plan Details -->
     <div class="plan-details">
-      <div class="plan-header">
-        <h2 class="plan-name">{{ plan_name }}</h2>
-        <ul class="plan-features">
-          {% for feature in features %}
-          <li>{{ feature }}</li>
-          {% endfor %}
-        </ul>
+      <h2 class="plan-name">{{ plan_name }}</h2>
+      <p class="plan-description">{{ plan_description }}</p>
+      <div class="plan-price">
+        <div class="price-row">
+          <div class="price-amount">${{ price }}</div>
+          <div class="price-period">per month</div>
+        </div>
       </div>
-      <div class="plan-pricing">
-        <div class="plan-price">${{ price }}</div>
-        <div class="plan-period">per month</div>
-      </div>
+      <ul class="plan-features">
+        {% for feature in features %}
+        <li><i class="bi bi-check-circle-fill"></i> {{ feature }}</li>
+        {% endfor %}
+      </ul>
     </div>
 
     <!-- Right Side - Form -->
